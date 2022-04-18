@@ -1,9 +1,8 @@
-FROM python:3.8.13-slim-bullseye
+FROM nvidia/cuda:11.6.0-devel-ubuntu20.04
 
-USER 0
+ARG DEBIAN_FRONTEND=noninteractive
 
-ENV PYSPARK_PYTHON=python
-ENV PYSPARK_DRIVER_PYTHON=python
+ENV CONDA_DIR /opt/conda
 
 RUN apt-get update && apt-get install -y \
     tar \
@@ -22,7 +21,17 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     graphviz
 
-# Install OpenJDK-8
+# Install Conda
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py38_4.11.0-Linux-x86_64.sh -O /tmp/Miniconda3-py38_4.11.0-Linux-x86_64.sh && \
+    bash /tmp/Miniconda3-py38_4.11.0-Linux-x86_64.sh -b -p /opt/conda && \
+    rm /tmp/Miniconda3-py38_4.11.0-Linux-x86_64.sh
+
+ENV PATH $CONDA_DIR/bin:$PATH
+
+ENV PYSPARK_PYTHON=python
+ENV PYSPARK_DRIVER_PYTHON=python
+
+# Install OpenJDK-11
 RUN apt-get update && \
     apt-get install -y openjdk-11-jdk && \
     apt-get install -y ant && \
@@ -42,15 +51,10 @@ RUN echo "export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/" >> ~/.bashrc
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN pip install pyspark spark-nlp==3.1.2 sklearn pandas
-
 WORKDIR /workspace
 
 ADD  . .
 
-# RUN apt-get update && apt-get install -y vim curl
+RUN pip install -r requirements.txt
 
-# RUN pip install -r requirements.txt
-
-# # CMD [ "python", "consumer.py", "-t", "$TOPIC" ]
-CMD [ "sleep", "infinity" ]
+CMD python consumer.py -t ${KAFKA_TOPIC}
