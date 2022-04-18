@@ -17,6 +17,9 @@ SG = [103.566667,1.202857,104.094369,1.483382]
 HK = [113.817111,22.136722,114.502444,22.568333]
 AUS = [72.25,-55.32,168.23,-9.09]
 
+# keywords
+KEYWORDS = ['covid', 'ncov', 'wuhan', 'corona']
+
 
 class TweetListener(Stream):
     def on_data(self, data):
@@ -26,6 +29,8 @@ class TweetListener(Stream):
             producer.send('sg', json.dumps({'id': json_['id_str'], 'created_at': json_['created_at'], 'text': json_['text']}).encode('utf-8'))
         elif json_['place']['country_code'] == 'HK':
             producer.send('hk', json.dumps({'id': json_['id_str'], 'created_at': json_['created_at'], 'text': json_['text']}).encode('utf-8'))
+        elif json_['place']['country_code'] == 'AU':
+            producer.send('au', json.dumps({'id': json_['id_str'], 'created_at': json_['created_at'], 'text': json_['text']}).encode('utf-8'))
         return True
     
     def on_error(self, status):
