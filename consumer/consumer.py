@@ -1,11 +1,13 @@
 import os
 import json
 import argparse
-import requests
-from urllib.parse import quote_plus
+from datetime import datetime
 
 from kafka import KafkaConsumer
 from pymongo import MongoClient
+import sparknlp
+import pyspark.sql.functions as F
+from pyspark.ml.pipeline import PipelineModel
 
 
 KAFKA_BROKER_CONNECT = os.getenv('KAFKA_BROKER_CONNECT')
@@ -19,16 +21,20 @@ headers = {
     'Referer':      'https://socialanalyticsplus.net/crystalfeel/'
 }
 
+def predict(spark, model, tweet):
+    sample_df = spark.createDataFrame([[str(tweet)]]).toDF('text')
+    sample_df = sample_df.withColumn('text', F.regexp_replace('text', r'http\S+',''))
+    sample_df = sample_df.withColumn('text', F.regexp_replace('text', '@\w+',''))
+    sample_df = sample_df.withColumn('text', F.regexp_replace('text', '#',''))
+    sample_df = sample_df.withColumn('text', F.regexp_replace('text', 'RT',''))
+    sample_df = sample_df.withColumn('text', F.regexp_replace('text', '&amp;',''))
+    sample_df = sample_df.withColumn('text', F.regexp_replace('text', '&quot;',''))
+    sample_df = sample_df.withColumn('text', F.regexp_replace('text', '&gt',''))
+    sample_df = sample_df.withColumn('text', F.regexp_replace('text', '&lt',''))
 
-def get_sentiment(text):
-    res = requests.post(crystal_feel_url, headers=headers, data=f'tweet={quote_plus(text)}')
-    sentiment = res.json()['scores'].split('Sentiment: </b>')[1].split('</td>')[0].lower()
-    if 'positive' in sentiment:
-        return 1
-    elif 'negative' in sentiment:
-        return -1
-    else:
-        return 0
+    result = model.transform(sample_df)
+    sentiment = result.select("prediction").first()[0]
+    return sentiment
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -40,6 +46,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     print(args)
+
+    spark = spark = sparknlp.start(gpu=True)
+    model = PipelineModel.load("model/Models/svm_sg")
 
     consumer = KafkaConsumer(
         args.t,
@@ -58,6 +67,7 @@ if __name__ == '__main__':
     for message in consumer:
         print(message)
         message = message.value
-        message['sentiment'] = get_sentiment(message['text'])
+        message['created_at'] = datetime.strptime(message['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
+        message['sentiment'] = predict(spark, model, message['text'])
         collection.insert_one(message)
         print('{} added to {}'.format(message, collection))
