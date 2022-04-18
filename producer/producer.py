@@ -34,4 +34,4 @@ class TweetListener(Stream):
 print(f'{KAFKA_BROKER_CONNECT}')
 producer = KafkaProducer(bootstrap_servers=f'{KAFKA_BROKER_CONNECT}')
 tweet_stream = TweetListener(f'{CONSUMER_KEY}', f'{CONSUMER_SECRET}', f'{ACCESS_TOKEN}', f'{ACCESS_TOKEN_SECRET}')
-tweet_stream.filter(locations=SG+HK)
+tweet_stream.filter(locations=SG+HK+AUS)
