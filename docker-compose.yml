@@ -25,15 +25,21 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "broker:9092", "--list"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   producer:
     build: producer
     depends_on:
-      - broker
+      broker:
+        condition: service_healthy
     environment:
       CONSUMER_KEY: {CONSUMER_KEY}
       CONSUMER_SECRET: {CONSUMER_SECRET}
       ACCESS_TOKEN: {ACCESS_TOKEN}
       ACCESS_TOKEN_SECRET: {ACCESS_TOKEN_SECRET}
       KAFKA_BROKER_CONNECT: 'broker:9092'
-
