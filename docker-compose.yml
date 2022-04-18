@@ -32,6 +32,22 @@ services:
       retries: 5
       start_period: 30s
 
+  mongo:
+    image: mongo:5.0.7
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
   producer:
     build: producer
     depends_on:
@@ -43,3 +59,14 @@ services:
       ACCESS_TOKEN: {ACCESS_TOKEN}
       ACCESS_TOKEN_SECRET: {ACCESS_TOKEN_SECRET}
       KAFKA_BROKER_CONNECT: 'broker:9092'
+
+  consumer_sg:
+    build: consumer
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_CONNECT: 'broker:9092'
+      MONGODB_CONNECT: 'mongodb://mongo:27017'
+      MONGODB_USERNAME: 'root'
+      MONGODB_PASSWORD: 'root'
