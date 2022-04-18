@@ -10,4 +10,4 @@ RUN apt-get update && apt-get install -y vim curl
 
 RUN pip install -r requirements.txt
 
-ENTRYPOINT [ "./entrypoint.sh" ]
+CMD [ "python", "producer.py" ]
