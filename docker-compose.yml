@@ -80,3 +80,45 @@ services:
           - driver: nvidia
             device_ids: ['0']
             capabilities: [gpu]
+
+  consumer_hk:
+    build: consumer
+    depends_on: 
+      mongo:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_CONNECT: 'broker:9092'
+      KAFKA_TOPIC: 'hk'
+      MONGODB_CONNECT: 'mongodb://mongo:27017'
+      MONGODB_USERNAME: 'root'
+      MONGODB_PASSWORD: 'root'
+    volumes:
+      - ./model:/workspace/model
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            device_ids: ['1']
+            capabilities: [gpu]
+
+  consumer_au:
+    build: consumer
+    depends_on: 
+      mongo:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_CONNECT: 'broker:9092'
+      KAFKA_TOPIC: 'au'
+      MONGODB_CONNECT: 'mongodb://mongo:27017'
+      MONGODB_USERNAME: 'root'
+      MONGODB_PASSWORD: 'root'
+    volumes:
+      - ./model:/workspace/model
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            device_ids: ['2']
+            capabilities: [gpu]
