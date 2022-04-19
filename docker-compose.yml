@@ -122,3 +122,16 @@ services:
           - driver: nvidia
             device_ids: ['2']
             capabilities: [gpu]
+
+  api:
+    build: backend
+    depends_on: 
+      mongo:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      GUNICORN_WORKERS: 3
+      MONGODB_CONNECT: 'mongodb://mongo:27017'
+      MONGODB_USERNAME: 'root'
+      MONGODB_PASSWORD: 'root'
