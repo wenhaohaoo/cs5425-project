@@ -22,6 +22,7 @@ paths:
                     example: "up and running"
           description: successful operation
       summary: Return status of the API server.
+
   /sentiment/{country}:
     get:
       tags: 
