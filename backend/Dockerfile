@@ -1,16 +1,13 @@
-FROM python:3-alpine
+FROM python:3.8.13-slim-buster
 
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+WORKDIR /workdir
 
-COPY requirements.txt /usr/src/app/
+ADD . .
 
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y vim curl wget
 
-COPY . /usr/src/app
+RUN pip install -r requirements.txt
 
-EXPOSE 8080
+EXPOSE 5000
 
-ENTRYPOINT ["python3"]
-
-CMD ["-m", "openapi_server"]
+ENTRYPOINT ["./entrypoint.sh"]
