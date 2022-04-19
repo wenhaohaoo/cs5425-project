@@ -1,9 +1,28 @@
+from datetime import datetime, timedelta
+
 import connexion
 import six
 
 from openapi_server.models.sentiment import Sentiment  # noqa: E501
 from openapi_server import util, db
 
+
+AGGREGATE_TEMPLATE = [
+    {'$match': { 
+        'created_at': {'$gt': None}
+    }},
+    {'$group': {
+        '_id': { '$dateToString': {'format': '%Y-%m-%d', 'date': "$created_at"} },
+        'sentiment_sum': { '$sum': '$sentiment' }, 
+        'count': { '$sum': 1 }
+    }},
+    {'$project': {
+        'positive': { '$divide': ['$sentiment_sum', '$count'] },
+        'negative': { '$subtract': [1, { '$divide': ['$sentiment_sum', '$count']}]},
+        'tweet_count': '$count'
+    }},
+    {'$sort': { 'date': 1 }}
+]
 
 def sentiment_country_get(country, start, end=None):  # noqa: E501
     """Returns a list of aggregated sentiments per day.
@@ -21,25 +40,10 @@ def sentiment_country_get(country, start, end=None):  # noqa: E501
     """
     start = util.deserialize_datetime(start)
     end = util.deserialize_datetime(end)
-    aggregate = [
-        {'$match': { 
-            'created_at': {'$gt': start}
-        }},
-        {'$group': {
-            '_id': { '$dateToString': {'format': '%Y-%m-%d', 'date': "$created_at"} },
-            'sentiment_sum': { '$sum': '$sentiment' }, 
-            'count': { '$sum': 1 }
-        }},
-        {'$project': {
-            'positive': { '$divide': ['$sentiment_sum', '$count'] },
-            'negative': { '$subtract': [1, { '$divide': ['$sentiment_sum', '$count']}]},
-            'tweet_count': '$count'
-        }},
-        {'$sort': { 'date': 1 }}
-    ]
+    aggregate = AGGREGATE_TEMPLATE.copy()
+    aggregate[0]['$match']['created_at']['$gt'] = start
     if end:
         aggregate[0]['$match']['created_at']['$lt'] = end
-
     return list(map(lambda x: Sentiment(x['_id'], x['positive'], x['negative'], x['tweet_count']), db[country].aggregate(aggregate)))
 
 
@@ -53,7 +57,12 @@ def sentiment_country_past24hr_get(country):  # noqa: E501
 
     :rtype: Sentiment
     """
-    return 'do some magic!'
+    time = datetime.now() - timedelta(hours=24)
+    aggregate = AGGREGATE_TEMPLATE.copy()
+    aggregate[0]['$match']['created_at']['$gt'] = time
+    aggregate[1]['$group']['_id'] = 'agg'
+    result = list(db[country].aggregate(aggregate))[0]
+    return Sentiment(time.strftime('%Y-%m-%d'), result['positive'], result['negative'], result['tweet_count'])
 
 
 def sentiment_country_past30_days_get(country):  # noqa: E501
