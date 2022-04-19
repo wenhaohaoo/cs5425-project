@@ -3,9 +3,29 @@ info:
   title: COVID-19 Tweets Sentiment Analysis API
   description: Sentiment Analysis on COVID-19 related Tweets in Singapore, Hong Kong and Australia
   version: 0.0.1
+tags:
+- name: sentiment
 paths:
+  /:
+    get:
+      description: Return status of the API server.
+      operationId: health_check
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "up and running"
+          description: successful operation
+      summary: Return status of the API server.
   /sentiment/{country}:
     get:
+      tags: 
+      - sentiment
       summary: Returns a list of aggregated sentiments per day.
       description: Sentiments for COVID-19 related Tweets will be aggregated by day.
       parameters:
@@ -46,6 +66,8 @@ paths:
   
   /sentiment/{country}/past-24hr:
     get:
+      tags: 
+      - sentiment
       summary: Returns aggregated sentiments for the past 24 hours.
       description: Sentiments for COVID-19 related Tweets for past 24 hours.
       parameters:
@@ -66,6 +88,8 @@ paths:
                   
   /sentiment/{country}/past-7-days:
     get:
+      tags: 
+      - sentiment
       summary: Returns aggregated sentiments for the past 7 days.
       description: Sentiments for COVID-19 related Tweets for past 7 days.
       parameters:
@@ -86,6 +110,8 @@ paths:
                   
   /sentiment/{country}/past-30-days:
     get:
+      tags: 
+      - sentiment
       summary: Returns aggregated sentiments for the past 30 days.
       description: Sentiments for COVID-19 related Tweets for past 30 days.
       parameters:
