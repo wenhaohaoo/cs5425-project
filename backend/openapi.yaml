@@ -1,0 +1,126 @@
+openapi: 3.0.3
+info:
+  title: COVID-19 Tweets Sentiment Analysis API
+  description: Sentiment Analysis on COVID-19 related Tweets in Singapore, Hong Kong and Australia
+  version: 0.0.1
+paths:
+  /sentiment/{country}:
+    get:
+      summary: Returns a list of aggregated sentiments per day.
+      description: Sentiments for COVID-19 related Tweets will be aggregated by day.
+      parameters:
+      - name: country
+        in: path
+        required: true
+        description: Country to query; must be in ["sg", "hk", "au"]
+        schema:
+          type: string
+          enum: [sg, hk, au]
+      - name: start
+        in: query
+        required: true
+        description: Start date (inclusive) for sentiment aggregation
+        schema:
+          type: string
+          format: date
+          description: Creation date
+          example: "2021-01-30"
+      - name: end
+        in: query
+        required: false
+        description: End date (exclusive) for sentiment aggregation
+        schema:
+          type: string
+          format: date
+          description: Creation date
+          example: "2022-01-30"
+      responses:
+        '200':    # status code
+          description: A JSON list of sentiments aggregated by day
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Sentiment"
+  
+  /sentiment/{country}/past-24hr:
+    get:
+      summary: Returns aggregated sentiments for the past 24 hours.
+      description: Sentiments for COVID-19 related Tweets for past 24 hours.
+      parameters:
+      - name: country
+        in: path
+        required: true
+        description: Country to query; must be in ["sg", "hk", "au"]
+        schema:
+          type: string
+          enum: [sg, hk, au]
+      responses:
+        '200':    # status code
+          description: A JSON object of aggregated sentiments for the past 24 hours
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/Sentiment"
+                  
+  /sentiment/{country}/past-7-days:
+    get:
+      summary: Returns aggregated sentiments for the past 7 days.
+      description: Sentiments for COVID-19 related Tweets for past 7 days.
+      parameters:
+      - name: country
+        in: path
+        required: true
+        description: Country to query; must be in ["sg", "hk", "au"]
+        schema:
+          type: string
+          enum: [sg, hk, au]
+      responses:
+        '200':    # status code
+          description: A JSON object of aggregated sentiments for the past 7 days.
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/Sentiment"
+                  
+  /sentiment/{country}/past-30-days:
+    get:
+      summary: Returns aggregated sentiments for the past 30 days.
+      description: Sentiments for COVID-19 related Tweets for past 30 days.
+      parameters:
+      - name: country
+        in: path
+        required: true
+        description: Country to query; must be in ["sg", "hk", "au"]
+        schema:
+          type: string
+          enum: [sg, hk, au]
+      responses:
+        '200':    # status code
+          description: A JSON object of aggregated sentiments for the past 30 days.
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/Sentiment"
+                  
+components:
+  schemas:
+    Sentiment:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2021-01-31"
+        positive:
+          type: number
+          format: float
+          example: 45.6
+        negative:
+          type: number
+          format: float
+          example: 54.4
+        tweet_count:
+          type: number
+          example: 1000
