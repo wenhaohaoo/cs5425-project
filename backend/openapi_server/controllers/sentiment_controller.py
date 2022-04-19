@@ -65,19 +65,6 @@ def sentiment_country_past24hr_get(country):  # noqa: E501
     return Sentiment(time.strftime('%Y-%m-%d'), result['positive'], result['negative'], result['tweet_count'])
 
 
-def sentiment_country_past30_days_get(country):  # noqa: E501
-    """Returns aggregated sentiments for the past 30 days.
-
-    Sentiments for COVID-19 related Tweets for past 30 days. # noqa: E501
-
-    :param country: Country to query; must be in [\&quot;sg\&quot;, \&quot;hk\&quot;, \&quot;au\&quot;]
-    :type country: str
-
-    :rtype: Sentiment
-    """
-    return 'do some magic!'
-
-
 def sentiment_country_past7_days_get(country):  # noqa: E501
     """Returns aggregated sentiments for the past 7 days.
 
@@ -88,4 +75,27 @@ def sentiment_country_past7_days_get(country):  # noqa: E501
 
     :rtype: Sentiment
     """
-    return 'do some magic!'
+    time = datetime.now() - timedelta(days=7)
+    aggregate = AGGREGATE_TEMPLATE.copy()
+    aggregate[0]['$match']['created_at']['$gt'] = time
+    aggregate[1]['$group']['_id'] = 'agg'
+    result = list(db[country].aggregate(aggregate))[0]
+    return Sentiment(time.strftime('%Y-%m-%d'), result['positive'], result['negative'], result['tweet_count'])
+
+
+def sentiment_country_past30_days_get(country):  # noqa: E501
+    """Returns aggregated sentiments for the past 30 days.
+
+    Sentiments for COVID-19 related Tweets for past 30 days. # noqa: E501
+
+    :param country: Country to query; must be in [\&quot;sg\&quot;, \&quot;hk\&quot;, \&quot;au\&quot;]
+    :type country: str
+
+    :rtype: Sentiment
+    """
+    time = datetime.now() - timedelta(days=30)
+    aggregate = AGGREGATE_TEMPLATE.copy()
+    aggregate[0]['$match']['created_at']['$gt'] = time
+    aggregate[1]['$group']['_id'] = 'agg'
+    result = list(db[country].aggregate(aggregate))[0]
+    return Sentiment(time.strftime('%Y-%m-%d'), result['positive'], result['negative'], result['tweet_count'])
