@@ -34,6 +34,7 @@ services:
 
   mongo:
     image: mongo:5.0.7
+    container_name: mongo
     ports:
       - "27017:27017"
     volumes:
@@ -50,6 +51,7 @@ services:
 
   producer:
     build: producer
+    container_name: producer
     depends_on:
       broker:
         condition: service_healthy
@@ -62,6 +64,7 @@ services:
 
   consumer_sg:
     build: consumer
+    container_name: consumer_sg
     depends_on: 
       mongo:
         condition: service_healthy
@@ -83,6 +86,7 @@ services:
 
   consumer_hk:
     build: consumer
+    container_name: consumer_hk
     depends_on: 
       mongo:
         condition: service_healthy
@@ -104,6 +108,7 @@ services:
 
   consumer_au:
     build: consumer
+    container_name: consumer_au
     depends_on: 
       mongo:
         condition: service_healthy
@@ -125,6 +130,7 @@ services:
 
   api:
     build: backend
+    container_name: api
     depends_on: 
       mongo:
         condition: service_healthy
