@@ -19,8 +19,8 @@ def sentiment_country_get(country, start, end=None):  # noqa: E501
 
     :rtype: List[Sentiment]
     """
-    start = util.deserialize_date(start)
-    end = util.deserialize_date(end)
+    start = util.deserialize_datetime(start)
+    end = util.deserialize_datetime(end)
     return 'do some magic!'
 
 

@@ -46,8 +46,7 @@ paths:
         required: true
         schema:
           description: Creation date
-          example: 2021-01-30
-          format: date
+          format: date-time
           type: string
         style: form
       - description: End date (exclusive) for sentiment aggregation
@@ -57,8 +56,7 @@ paths:
         required: false
         schema:
           description: Creation date
-          example: 2022-01-30
-          format: date
+          format: date-time
           type: string
         style: form
       responses:
@@ -162,7 +160,7 @@ components:
   schemas:
     Sentiment:
       example:
-        date: 2021-01-31T00:00:00.000+0000
+        date: 2021-01-31
         tweet_count: 1000
         negative: 54.4
         positive: 45.6

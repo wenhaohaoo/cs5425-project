@@ -42,7 +42,7 @@ paths:
         description: Start date (inclusive) for sentiment aggregation
         schema:
           type: string
-          format: date
+          format: date-time
           description: Creation date
           example: "2021-01-30"
       - name: end
@@ -51,7 +51,7 @@ paths:
         description: End date (exclusive) for sentiment aggregation
         schema:
           type: string
-          format: date
+          format: date-time
           description: Creation date
           example: "2022-01-30"
       responses:
