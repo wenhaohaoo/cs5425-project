@@ -36,7 +36,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-t',
         default='sg',
-        help='topic to consume from: "sg" or "hk"',
+        help='topic to consume from: "sg" or "hk" or "au"',
     )
     args = parser.parse_args()
 
