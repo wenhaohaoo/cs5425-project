@@ -15,11 +15,6 @@ MONGODB_CONNECT = os.getenv('MONGODB_CONNECT')
 MONGODB_USERNAME = os.getenv('MONGODB_USERNAME')
 MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD')
 
-crystal_feel_url = 'https://socialanalyticsplus.net/crystalfeel/getEmotionScores.php'
-headers = {
-    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 
-    'Referer':      'https://socialanalyticsplus.net/crystalfeel/'
-}
 
 def predict(spark, model, tweet):
     sample_df = spark.createDataFrame([[str(tweet)]]).toDF('text')
