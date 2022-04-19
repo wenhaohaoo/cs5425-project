@@ -13,4 +13,4 @@ def health_check():  # noqa: E501
 
     :rtype: InlineResponse200
     """
-    return 'do some magic!'
+    return InlineResponse200(status='up and running!')
