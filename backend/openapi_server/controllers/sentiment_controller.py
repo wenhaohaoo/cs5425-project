@@ -2,7 +2,7 @@ import connexion
 import six
 
 from openapi_server.models.sentiment import Sentiment  # noqa: E501
-from openapi_server import util
+from openapi_server import util, db
 
 
 def sentiment_country_get(country, start, end=None):  # noqa: E501
@@ -21,7 +21,26 @@ def sentiment_country_get(country, start, end=None):  # noqa: E501
     """
     start = util.deserialize_datetime(start)
     end = util.deserialize_datetime(end)
-    return 'do some magic!'
+    aggregate = [
+        {'$match': { 
+            'created_at': {'$gt': start}
+        }},
+        {'$group': {
+            '_id': { '$dateToString': {'format': '%Y-%m-%d', 'date': "$created_at"} },
+            'sentiment_sum': { '$sum': '$sentiment' }, 
+            'count': { '$sum': 1 }
+        }},
+        {'$project': {
+            'positive': { '$divide': ['$sentiment_sum', '$count'] },
+            'negative': { '$subtract': [1, { '$divide': ['$sentiment_sum', '$count']}]},
+            'tweet_count': '$count'
+        }},
+        {'$sort': { 'date': 1 }}
+    ]
+    if end:
+        aggregate[0]['$match']['created_at']['$lt'] = end
+
+    return list(map(lambda x: Sentiment(x['_id'], x['positive'], x['negative'], x['tweet_count']), db[country].aggregate(aggregate)))
 
 
 def sentiment_country_past24hr_get(country):  # noqa: E501
