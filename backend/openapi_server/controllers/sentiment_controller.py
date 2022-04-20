@@ -21,7 +21,7 @@ AGGREGATE_TEMPLATE = [
         'negative': { '$subtract': [1, { '$divide': ['$sentiment_sum', '$count']}]},
         'tweet_count': '$count'
     }},
-    {'$sort': { 'date': 1 }}
+    {'$sort': { '_id': 1 }}
 ]
 
 def sentiment_country_get(country, start, end=None):  # noqa: E501
