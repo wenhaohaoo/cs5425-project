@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime, timedelta
 
 import connexion
@@ -17,14 +18,15 @@ AGGREGATE_TEMPLATE = [
         'count': { '$sum': 1 }
     }},
     {'$project': {
-        'positive': { '$divide': ['$sentiment_sum', '$count'] },
-        'negative': { '$subtract': [1, { '$divide': ['$sentiment_sum', '$count']}]},
+        'positive': { '$cond': [ { '$eq': [ '$count', 0 ] }, "0", { '$divide': ['$sentiment_sum', '$count'] } ] },
+        'negative': { '$cond': [ { '$eq': [ '$count', 0 ] }, "0", { '$subtract': [1, { '$divide': ['$sentiment_sum', '$count']}]} ] },
         'tweet_count': '$count'
     }},
     {'$sort': { '_id': 1 }}
 ]
 
 FIND_PRECOMPUTE_TEMPLATE = { 'date': {'$gt': None} }
+
 
 def sentiment_country_get(country, start, end=None):  # noqa: E501
     """Returns a list of aggregated sentiments per day.
@@ -44,14 +46,14 @@ def sentiment_country_get(country, start, end=None):  # noqa: E501
     start = util.deserialize_datetime(start)
     end = util.deserialize_datetime(end)
 
-    find = FIND_PRECOMPUTE_TEMPLATE.copy()
+    find = deepcopy(FIND_PRECOMPUTE_TEMPLATE)
     find['date']['$gt'] = start
     if end:
         find['date']['$lt'] = end
     results = list(map(lambda x: Sentiment(x['date'].date(), x['positive'], x['negative'], x['tweet_count']), sentiments_db[country].find(find)))
     
     if start <= now <= end:
-        aggregate = AGGREGATE_TEMPLATE.copy()
+        aggregate = deepcopy(AGGREGATE_TEMPLATE)
         aggregate[0]['$match']['created_at']['$gt'] = now
         results += list(map(lambda x: Sentiment(x['_id'], x['positive'], x['negative'], x['tweet_count']), tweets_db[country].aggregate(aggregate)))
 
@@ -69,7 +71,7 @@ def sentiment_country_past24hr_get(country):  # noqa: E501
     :rtype: Sentiment
     """
     time = datetime.now() - timedelta(hours=24)
-    aggregate = AGGREGATE_TEMPLATE.copy()
+    aggregate = deepcopy(AGGREGATE_TEMPLATE)
     aggregate[0]['$match']['created_at']['$gt'] = time
     aggregate[1]['$group']['_id'] = 'agg'
     result_cursor = tweets_db[country].aggregate(aggregate)
@@ -91,7 +93,7 @@ def sentiment_country_past7_days_get(country):  # noqa: E501
     :rtype: Sentiment
     """
     time = datetime.now() - timedelta(days=7)
-    aggregate = AGGREGATE_TEMPLATE.copy()
+    aggregate = deepcopy(AGGREGATE_TEMPLATE)
     aggregate[0]['$match']['created_at']['$gt'] = time
     aggregate[1]['$group']['_id'] = 'agg'
     result_cursor = tweets_db[country].aggregate(aggregate)
@@ -113,7 +115,7 @@ def sentiment_country_past30_days_get(country):  # noqa: E501
     :rtype: Sentiment
     """
     time = datetime.now() - timedelta(days=30)
-    aggregate = AGGREGATE_TEMPLATE.copy()
+    aggregate = deepcopy(AGGREGATE_TEMPLATE)
     aggregate[0]['$match']['created_at']['$gt'] = time
     aggregate[1]['$group']['_id'] = 'agg'
     result_cursor = tweets_db[country].aggregate(aggregate)
