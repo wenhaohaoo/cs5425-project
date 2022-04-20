@@ -72,9 +72,10 @@ def sentiment_country_past24hr_get(country):  # noqa: E501
     aggregate = AGGREGATE_TEMPLATE.copy()
     aggregate[0]['$match']['created_at']['$gt'] = time
     aggregate[1]['$group']['_id'] = 'agg'
-    result = list(tweets_db[country].aggregate(aggregate))
-    if result:
-        return Sentiment(time.strftime('%Y-%m-%d'), result[0]['positive'], result[0]['negative'], result[0]['tweet_count'])
+    result_cursor = tweets_db[country].aggregate(aggregate)
+    if result_cursor._has_next():
+        result = result_cursor.next()
+        return Sentiment(time.strftime('%Y-%m-%d'), result['positive'], result['negative'], result['tweet_count'])
     else:
         return Sentiment(time.strftime('%Y-%m-%d'), 0, 0, 0)
 
@@ -93,9 +94,10 @@ def sentiment_country_past7_days_get(country):  # noqa: E501
     aggregate = AGGREGATE_TEMPLATE.copy()
     aggregate[0]['$match']['created_at']['$gt'] = time
     aggregate[1]['$group']['_id'] = 'agg'
-    result = list(tweets_db[country].aggregate(aggregate))
-    if result:
-        return Sentiment(time.strftime('%Y-%m-%d'), result[0]['positive'], result[0]['negative'], result[0]['tweet_count'])
+    result_cursor = tweets_db[country].aggregate(aggregate)
+    if result_cursor._has_next():
+        result = result_cursor.next()
+        return Sentiment(time.strftime('%Y-%m-%d'), result['positive'], result['negative'], result['tweet_count'])
     else:
         return Sentiment(time.strftime('%Y-%m-%d'), 0, 0, 0)
 
@@ -114,8 +116,9 @@ def sentiment_country_past30_days_get(country):  # noqa: E501
     aggregate = AGGREGATE_TEMPLATE.copy()
     aggregate[0]['$match']['created_at']['$gt'] = time
     aggregate[1]['$group']['_id'] = 'agg'
-    result = list(tweets_db[country].aggregate(aggregate))
-    if result:
-        return Sentiment(time.strftime('%Y-%m-%d'), result[0]['positive'], result[0]['negative'], result[0]['tweet_count'])
+    result_cursor = tweets_db[country].aggregate(aggregate)
+    if result_cursor._has_next():
+        result = result_cursor.next()
+        return Sentiment(time.strftime('%Y-%m-%d'), result['positive'], result['negative'], result['tweet_count'])
     else:
         return Sentiment(time.strftime('%Y-%m-%d'), 0, 0, 0)
