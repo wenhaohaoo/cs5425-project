@@ -4,7 +4,7 @@ import connexion
 import six
 
 from openapi_server.models.sentiment import Sentiment  # noqa: E501
-from openapi_server import util, db
+from openapi_server import util, tweets_db
 
 
 AGGREGATE_TEMPLATE = [
@@ -44,7 +44,7 @@ def sentiment_country_get(country, start, end=None):  # noqa: E501
     aggregate[0]['$match']['created_at']['$gt'] = start
     if end:
         aggregate[0]['$match']['created_at']['$lt'] = end
-    return list(map(lambda x: Sentiment(x['_id'], x['positive'], x['negative'], x['tweet_count']), db[country].aggregate(aggregate)))
+    return list(map(lambda x: Sentiment(x['_id'], x['positive'], x['negative'], x['tweet_count']), tweets_db[country].aggregate(aggregate)))
 
 
 def sentiment_country_past24hr_get(country):  # noqa: E501
@@ -61,7 +61,7 @@ def sentiment_country_past24hr_get(country):  # noqa: E501
     aggregate = AGGREGATE_TEMPLATE.copy()
     aggregate[0]['$match']['created_at']['$gt'] = time
     aggregate[1]['$group']['_id'] = 'agg'
-    result = list(db[country].aggregate(aggregate))
+    result = list(tweets_db[country].aggregate(aggregate))
     if result:
         return Sentiment(time.strftime('%Y-%m-%d'), result['positive'], result['negative'], result['tweet_count'])
     else:
@@ -82,7 +82,7 @@ def sentiment_country_past7_days_get(country):  # noqa: E501
     aggregate = AGGREGATE_TEMPLATE.copy()
     aggregate[0]['$match']['created_at']['$gt'] = time
     aggregate[1]['$group']['_id'] = 'agg'
-    result = list(db[country].aggregate(aggregate))
+    result = list(tweets_db[country].aggregate(aggregate))
     if result:
         return Sentiment(time.strftime('%Y-%m-%d'), result['positive'], result['negative'], result['tweet_count'])
     else:
@@ -103,7 +103,7 @@ def sentiment_country_past30_days_get(country):  # noqa: E501
     aggregate = AGGREGATE_TEMPLATE.copy()
     aggregate[0]['$match']['created_at']['$gt'] = time
     aggregate[1]['$group']['_id'] = 'agg'
-    result = list(db[country].aggregate(aggregate))
+    result = list(tweets_db[country].aggregate(aggregate))
     if result:
         return Sentiment(time.strftime('%Y-%m-%d'), result['positive'], result['negative'], result['tweet_count'])
     else:

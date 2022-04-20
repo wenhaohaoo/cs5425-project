@@ -5,7 +5,9 @@ from config import Config
 from openapi_server import encoder
 
 
-db = MongoClient(Config.MONGODB_CONNECT, username=Config.MONGODB_USERNAME, password=Config.MONGODB_PASSWORD).tweets
+mongo_client = MongoClient(Config.MONGODB_CONNECT, username=Config.MONGODB_USERNAME, password=Config.MONGODB_PASSWORD)
+tweets_db = mongo_client.tweets
+sentiments_db = mongo_client.sentiments
 
 def set_cors_headers_on_response(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
