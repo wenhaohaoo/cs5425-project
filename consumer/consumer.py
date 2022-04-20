@@ -43,7 +43,7 @@ if __name__ == '__main__':
     print(args)
 
     spark = spark = sparknlp.start(gpu=True)
-    model = PipelineModel.load("model/Models/svm_sg")
+    model = PipelineModel.load(f"model/Models/svm_{args.t}")
 
     consumer = KafkaConsumer(
         args.t,
