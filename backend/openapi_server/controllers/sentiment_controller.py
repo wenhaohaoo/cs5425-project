@@ -4,7 +4,7 @@ import connexion
 import six
 
 from openapi_server.models.sentiment import Sentiment  # noqa: E501
-from openapi_server import util, tweets_db
+from openapi_server import util, tweets_db, sentiments_db
 
 
 AGGREGATE_TEMPLATE = [
@@ -24,6 +24,8 @@ AGGREGATE_TEMPLATE = [
     {'$sort': { '_id': 1 }}
 ]
 
+FIND_PRECOMPUTE_TEMPLATE = { 'date': {'$gt': None} }
+
 def sentiment_country_get(country, start, end=None):  # noqa: E501
     """Returns a list of aggregated sentiments per day.
 
@@ -38,13 +40,22 @@ def sentiment_country_get(country, start, end=None):  # noqa: E501
 
     :rtype: List[Sentiment]
     """
+    now = datetime.now()
     start = util.deserialize_datetime(start)
     end = util.deserialize_datetime(end)
-    aggregate = AGGREGATE_TEMPLATE.copy()
-    aggregate[0]['$match']['created_at']['$gt'] = start
+
+    find = FIND_PRECOMPUTE_TEMPLATE.copy()
+    find['date']['$gt'] = start
     if end:
-        aggregate[0]['$match']['created_at']['$lt'] = end
-    return list(map(lambda x: Sentiment(x['_id'], x['positive'], x['negative'], x['tweet_count']), tweets_db[country].aggregate(aggregate)))
+        find['date']['$lt'] = end
+    results = list(map(lambda x: Sentiment(x['date'].date(), x['positive'], x['negative'], x['tweet_count']), sentiments_db[country].find(find)))
+    
+    if start <= now <= end:
+        aggregate = AGGREGATE_TEMPLATE.copy()
+        aggregate[0]['$match']['created_at']['$gt'] = now
+        results += list(map(lambda x: Sentiment(x['_id'], x['positive'], x['negative'], x['tweet_count']), tweets_db[country].aggregate(aggregate)))
+
+    return results
 
 
 def sentiment_country_past24hr_get(country):  # noqa: E501
