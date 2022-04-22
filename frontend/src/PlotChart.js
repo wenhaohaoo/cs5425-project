@@ -31,8 +31,8 @@ const PlotChart = (props) => {
                         return (<ReferenceLine key = {index} x = {splittedData[0]} stroke = "red" label = {splittedData[1]}/>)
                     })
                 }
-                <Line type="monotone" dataKey="negative" stroke="#8884d8" />
-                <Line type="monotone" dataKey="positive" stroke="#82ca9d" />
+                <Line type="monotone" dataKey="negative" stroke="#8884d8" dot={false} />
+                <Line type="monotone" dataKey="positive" stroke="#82ca9d" dot={false} />
             </LineChart>
         </div>
     );
