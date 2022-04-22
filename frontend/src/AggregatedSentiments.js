@@ -22,28 +22,34 @@ const AggregatedSentiments = () => {
     const [polling , setPolling] = useState(0)
 
     const updateData = async (URL_24Hours , URL_7Days , URL_30Days) => {
-        //await axios.get(URL_24Hours).then(res => {setData24Hours(res.data)})
-        //await axios.get(URL_7Days).then(res => {setData7Days(res.data)})
-        //await axios.get(URL_30days).then(res => {setData30Days(res.data)})
+        await axios.get(URL_24Hours).then(res => {
+            setData24Hours(res.data)
+        })
+        await axios.get(URL_7Days).then(res => {
+            setData7Days(res.data)
+        })
+        await axios.get(URL_30Days).then(res => {
+            setData30Days(res.data)
+        })
 
         //------------dummy flow - please delete after backend integration-----------------
-        let _7days = {date: "2021-01-31", positive: 40.6, negative: 59.4, tweet_count: 1000}
-        let _30days = {date: "2021-01-31", positive: 40.6, negative: 59.4, tweet_count: 1000}
-        let _24Hours = {date: "2021-01-31", positive: 40.6, negative: 59.4, tweet_count: 1000}
-        console.log(country)
-        setData7Days(_7days)
-        setData24Hours(_24Hours)
-        setData30Days(_30days)
+        // let _7days = {date: "2021-01-31", positive: 40.6, negative: 59.4, tweet_count: 1000}
+        // let _30days = {date: "2021-01-31", positive: 40.6, negative: 59.4, tweet_count: 1000}
+        // let _24Hours = {date: "2021-01-31", positive: 40.6, negative: 59.4, tweet_count: 1000}
+        // console.log(country)
+        // setData7Days(_7days)
+        // setData24Hours(_24Hours)
+        // setData30Days(_30days)
         //--------------------------------------------------------------
     }
 
     useEffect(() => {
         const pollingInterval = setInterval(async () => {
-            //let URL_24Hours = 'http://localhost:{port_number}/sentiment/{country}/past-24hr
-            //let URL_7Days = 'http://localhost:{port_number}/sentiment/{country}/past-7-days
-            //let URL_30Days = 'http://localhost:{port_number}/sentiment/{country}/past-30-days
-            //await updateData(URL_24Hours , URL_7Days , URL_30Days)
-            await updateData("1" , "2" , "3") //remove this line after backend integration
+            let URL_24Hours = 'http://localhost:5000/sentiment/'+ country + '/past-24hr'
+            let URL_7Days = 'http://localhost:5000/sentiment/'+ country + '/past-7-days'
+            let URL_30Days = 'http://localhost:5000/sentiment/' + country + '/past-30-days'
+            await updateData(URL_24Hours , URL_7Days , URL_30Days)
+            //await updateData("1" , "2" , "3") //remove this line after backend integration
             setPolling(prevState => prevState + 1)
         }, 10000) // Update every 10 seconds -> polling
 
@@ -54,10 +60,10 @@ const AggregatedSentiments = () => {
 
     const handleCountryChange = async (event) => {
         setCountryData(event.target.value)
-        //let URL_24Hours = 'http://localhost:{port_number}/sentiment/{country}/past-24hr
-        //let URL_7Days = 'http://localhost:{port_number}/sentiment/{country}/past-7-days
-        //let URL_30Days = 'http://localhost:{port_number}/sentiment/{country}/past-30-days
-        //await updateData(URL_24Hours , URL_7Days , URL_30Days)
+        let URL_24Hours = 'http://localhost:5000/sentiment/'+ country + '/past-24hr'
+       let URL_7Days = 'http://localhost:5000/sentiment/'+ country + '/past-7-days'
+        let URL_30Days = 'http://localhost:5000/sentiment/' + country + '/past-30-days'
+        await updateData(URL_24Hours , URL_7Days , URL_30Days)
     }
 
     return (
