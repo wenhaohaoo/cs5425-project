@@ -18,17 +18,23 @@ const AggregatedSentiments = () => {
     const [data7Days , setData7Days] = useState(emptyStart)
     const [data24Hours , setData24Hours] = useState(emptyStart)
     const [data30Days , setData30Days] = useState(emptyStart)
-    const [country , setCountryData] = useState("Singapore")
+    const [country , setCountryData] = useState("sg")
     const [polling , setPolling] = useState(0)
 
     const updateData = async (URL_24Hours , URL_7Days , URL_30Days) => {
         await axios.get(URL_24Hours).then(res => {
+            res.data.negative = (res.data.negative * 100).toFixed(2)
+            res.data.positive = (res.data.positive * 100).toFixed(2)
             setData24Hours(res.data)
         })
         await axios.get(URL_7Days).then(res => {
+            res.data.negative = (res.data.negative * 100).toFixed(2)
+            res.data.positive = (res.data.positive * 100).toFixed(2)
             setData7Days(res.data)
         })
         await axios.get(URL_30Days).then(res => {
+            res.data.negative = (res.data.negative * 100).toFixed(2)
+            res.data.positive = (res.data.positive * 100).toFixed(2)
             setData30Days(res.data)
         })
 
@@ -43,28 +49,45 @@ const AggregatedSentiments = () => {
         //--------------------------------------------------------------
     }
 
-    useEffect(() => {
-        const pollingInterval = setInterval(async () => {
-            let URL_24Hours = 'http://localhost:5000/sentiment/'+ country + '/past-24hr'
-            let URL_7Days = 'http://localhost:5000/sentiment/'+ country + '/past-7-days'
-            let URL_30Days = 'http://localhost:5000/sentiment/' + country + '/past-30-days'
-            await updateData(URL_24Hours , URL_7Days , URL_30Days)
-            //await updateData("1" , "2" , "3") //remove this line after backend integration
-            setPolling(prevState => prevState + 1)
-        }, 10000) // Update every 10 seconds -> polling
+    // useEffect(() => {
+    //     const pollingInterval = setInterval(async () => {
+    //         let URL_24Hours = 'http://localhost:5000/sentiment/'+ country + '/past-24hr'
+    //         let URL_7Days = 'http://localhost:5000/sentiment/'+ country + '/past-7-days'
+    //         let URL_30Days = 'http://localhost:5000/sentiment/' + country + '/past-30-days'
+    //         await updateData(URL_24Hours , URL_7Days , URL_30Days)
+    //         //await updateData("1" , "2" , "3") //remove this line after backend integration
+    //         setPolling(prevState => prevState + 1)
+    //     }, 300000) // Update every 300 seconds -> polling
 
-        return () => clearInterval(pollingInterval)
+    //     return () => clearInterval(pollingInterval)
 
-    } , [polling])
+    // } , [polling])
 
 
-    const handleCountryChange = async (event) => {
-        setCountryData(event.target.value)
+    const handleCountryChange = (event) => {
+        if(event.target.value == 'Singapore') {
+            setCountryData('sg')
+        }
+        else if(event.target.value == 'Hong Kong') {
+            setCountryData('hk')
+        } 
+    }
+
+    const sendURL = async(event) => {
         let URL_24Hours = 'http://localhost:5000/sentiment/'+ country + '/past-24hr'
-       let URL_7Days = 'http://localhost:5000/sentiment/'+ country + '/past-7-days'
+        let URL_7Days = 'http://localhost:5000/sentiment/'+ country + '/past-7-days'
         let URL_30Days = 'http://localhost:5000/sentiment/' + country + '/past-30-days'
         await updateData(URL_24Hours , URL_7Days , URL_30Days)
     }
+
+    const formSubmit = async(event) => {
+             let URL_24Hours = 'http://localhost:5000/sentiment/'+ country + '/past-24hr'
+       let URL_7Days = 'http://localhost:5000/sentiment/'+ country + '/past-7-days'
+        let URL_30Days = 'http://localhost:5000/sentiment/' + country + '/past-30-days'
+        await updateData(URL_24Hours , URL_7Days , URL_30Days)
+        //await updateData("1" , "2" , "3") 
+    }
+
 
     return (
         <React.Fragment>
@@ -76,6 +99,11 @@ const AggregatedSentiments = () => {
                                 <GenerateSelectValueForCountries  />
                             </Form.Select>
                         </FloatingLabel>
+                    </Col>
+                </Row>
+                <Row className="g-2 mb-4">
+                    <Col>
+                     <Button variant ="secondary" size = "lg" onClick = {sendURL} style ={{width: '100%'}}>Proceed</Button>
                     </Col>
                 </Row>
             </Form>
@@ -116,8 +144,13 @@ const AggregatedSentiments = () => {
                         </Card.Text>
                     </Card.Body>
                 </Card>
+                
             </div>
+            <p style={{marginTop: '1rem'}}>Data Last Updated at: {new Date().toLocaleString()}</p>
+            <Button variant ="secondary" size = "lg" type = 'submit' onClick = {formSubmit} style ={{width: '20%'}}>Refresh</Button>
+
         </React.Fragment>
+        
 
     )
 }
