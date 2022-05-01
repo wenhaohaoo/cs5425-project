@@ -28,7 +28,7 @@ const PlotChart = (props) => {
                 {
                     props.policiesData.map(function (data , index){
                         let splittedData = data.split(":")
-                        return (<ReferenceLine key = {index} x = {splittedData[0]} stroke = "red" label = {splittedData[1]}/>)
+                        return (<ReferenceLine key = {index} x = {splittedData[0]} stroke = "red" label = {splittedData[1]} allowDuplicatedCategory={false}/>)
                     })
                 }
                 <Line type="monotone" dataKey="negative" stroke="#8884d8" dot={false} />
