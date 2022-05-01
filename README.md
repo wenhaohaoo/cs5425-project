@@ -39,32 +39,52 @@ Requirements:
 2. `docker-compose` installed
 3.  `npm` installed
 
-To run backend components:
+To run backend components, you have to first replace the placeholders with your Twitter API details in the `producer` components of the `docker-compose.yml` file. 
+```yaml {.line-numbers}
+   producer:
+    build: producer
+    container_name: producer
+    depends_on:
+      broker:
+        condition: service_healthy
+    environment:
+      CONSUMER_KEY: {CONSUMER_KEY}
+      CONSUMER_SECRET: {CONSUMER_SECRET}
+      ACCESS_TOKEN: {ACCESS_TOKEN}
+      ACCESS_TOKEN_SECRET: {ACCESS_TOKEN_SECRET}
+      KAFKA_BROKER_CONNECT: 'broker:9092'
 ```
-$ docker-compose up -d -build
+Then run the following command to bring up **all** the components:
+```bash
+$ docker-compose up -d --build
+```
+To run only the MongoDB server and API server (without streaming components):
+```bash
+$ docker-compose up -d --build mongo api
 ```
 To run frontend:
-```
+```bash
 $ cd frontend
 $ npm install # will install packages stated in package.json
 $ npm start
 ```
 
 Teardown:
-```
+```bash
 $ docker-compose down
 ```
+</div>
 
 ## API Documentation
-The full API specifications can be viewed on the [online Swagger generator](https://generator.swagger.io/) by pasting the link to the OpenAPI yaml file (https://raw.githubusercontent.com/wenhaohaoo/cs5425-project/master/backend/openapi.yaml) in the top bar and click explore.
+The full API specifications can be viewed either on the [online Swagger generator](https://generator.swagger.io/) by pasting the link to the OpenAPI yaml file (https://raw.githubusercontent.com/wenhaohaoo/cs5425-project/master/backend/openapi.yaml) in the top bar and click explore, or at http://localhost:5000/ui after all backend components are up and running.
 
-1. GET /sentiment/{country}?start={YYYY-MM-DD}&end{YYYY-DD-MM}
+1. GET /sentiment/{country}?start={YYYY-MM-DD}&end{YYYY-DD-MM} \
 Returns a list of aggregated sentiments per day for the queried country and date range.
-2. GET /sentiment/{country}/past-24h
+2. GET /sentiment/{country}/past-24h \
 Returns aggregated sentiment for the past 24 hours for the queried country.
-3. GET /sentiment/{country}/past-7-days
+3. GET /sentiment/{country}/past-7-days \
 Returns aggregated sentiment for the past 7 days for the queried country.
-4. GET /sentiment/{country}/past-30-days
+4. GET /sentiment/{country}/past-30-days \
 Returns aggregated sentiment for the past 30 days for the queried country.
 
 
