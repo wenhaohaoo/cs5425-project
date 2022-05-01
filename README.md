@@ -41,18 +41,18 @@ Requirements:
 
 To run backend components, you have to first replace the placeholders with your Twitter API details in the `producer` components of the `docker-compose.yml` file. 
 ```yaml {.line-numbers}
-   producer:
-    build: producer
-    container_name: producer
-    depends_on:
-      broker:
-        condition: service_healthy
-    environment:
-      CONSUMER_KEY: {CONSUMER_KEY}
-      CONSUMER_SECRET: {CONSUMER_SECRET}
-      ACCESS_TOKEN: {ACCESS_TOKEN}
-      ACCESS_TOKEN_SECRET: {ACCESS_TOKEN_SECRET}
-      KAFKA_BROKER_CONNECT: 'broker:9092'
+53   producer:
+54    build: producer
+55    container_name: producer
+56    depends_on:
+57      broker:
+58        condition: service_healthy
+59    environment:
+60      CONSUMER_KEY: {CONSUMER_KEY}
+61      CONSUMER_SECRET: {CONSUMER_SECRET}
+62      ACCESS_TOKEN: {ACCESS_TOKEN}
+63      ACCESS_TOKEN_SECRET: {ACCESS_TOKEN_SECRET}
+64      KAFKA_BROKER_CONNECT: 'broker:9092'
 ```
 Then run the following command to bring up **all** the components:
 ```bash
