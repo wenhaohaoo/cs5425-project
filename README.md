@@ -30,8 +30,14 @@ These reults are then aggregated and served from our backend API.
 Requirements:
 1. `docker` installed
 2. `docker-compose` installed
+3.  `npm` installed
 ```
 docker-compose up -d -build
+```
+```
+cd into frontend
+1. npm install (will install packages stated in package.json)
+2. npm start
 ```
 
 Teardown:
